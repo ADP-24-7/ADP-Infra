@@ -10,6 +10,8 @@ services:
       AWS_SECRET_ACCESS_KEY: ${NCLOUD_SECRET_KEY:-}
       AWS_REGION: KR
       AWS_DEFAULT_REGION: KR
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
       TF_DATA_DIR: ${TF_DATA_DIR:-/workspace/environments/qa/.terraform}
     volumes:
       - .:/workspace

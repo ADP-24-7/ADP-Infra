@@ -81,6 +81,13 @@ AWS-standard variables required by the S3-compatible backend. No duplicate
 `AWS_*` entries are needed in the local file. Shell exports remain supported
 when `.env.terraform.local` is absent.
 
+The container also sets `AWS_REQUEST_CHECKSUM_CALCULATION` and
+`AWS_RESPONSE_CHECKSUM_VALIDATION` to `WHEN_REQUIRED`. Recent AWS SDK versions
+otherwise add optional checksum behavior that NCP Object Storage can reject on
+`PutObject` even when the same key can list objects and upload through the
+console. The backend additionally keeps `skip_s3_checksum = true` and
+path-style addressing enabled.
+
 Static validation uses a separate Terraform data directory, so `make check`
 does not initialize, migrate, or contact an already activated remote backend.
 
@@ -123,6 +130,17 @@ NCP Object Storage is S3-compatible at
 `https://kr.object.ncloudstorage.com`. The S3 backend signing region is `KR`, as
 specified by the NCP Terraform backend guide. The backend configuration
 intentionally contains no credentials.
+
+### Migration evidence — 2026-09-08
+
+- Remote object: `adp-qa-tfstate/adp-infra/qa/terraform.tfstate`
+- Remote object size after migration: 4,983 bytes
+- Remote State SHA-256 after migration:
+  `12ef3792c1e698407bff70d811f18ea1ca009871b0d513b73603b5c74ef4cd86`
+- State inventory: exactly the five addresses in `expected-state.txt`
+- Post-migration plan: `No changes`, detailed exit code `0`
+- State lock: acquired and released successfully; no `.tflock` object remained
+  after verification
 
 ## Recovery
 

@@ -5,8 +5,9 @@ cost-minimized NCP QA foundation adopted from console bootstrap resources.
 
 ## Current execution order
 
-1. **ADP-Infra** — adopt VPC, private subnet, runtime ACG, and Object Storage
-   buckets into Terraform without create/delete/replace actions.
+1. **ADP-Infra (complete)** — VPC, private subnet, runtime ACG, and Object
+   Storage buckets are adopted into the locked remote Terraform state without
+   create/delete/replace actions.
 2. **ADP-DA** — implement `ArtifactStore` and NCP Object Storage upload/download
    with manifest and SHA-256 verification.
 3. **ADP-BE** — load validated artifact references and fail closed on schema,
@@ -14,6 +15,10 @@ cost-minimized NCP QA foundation adopted from console bootstrap resources.
 
 Cloud DB, NAT Gateway, Server, Container Registry, KMS, runtime deployment, and
 monitoring stay out of scope until their documented gates are met.
+
+The QA remote state is active at
+`adp-qa-tfstate/adp-infra/qa/terraform.tfstate`. It tracks exactly five
+resources and the post-migration plan is `No changes` with exit code `0`.
 
 ## Layout
 
