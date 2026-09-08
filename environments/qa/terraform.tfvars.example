@@ -1,0 +1,10 @@
+region      = "KR"
+site        = "public"
+environment = "qa"
+zone        = "KR-1"
+
+vpc_cidr            = "10.20.0.0/16"
+private_subnet_cidr = "10.20.10.0/24"
+
+data_artifacts_bucket_name  = "adp-qa-data-artifacts"
+terraform_state_bucket_name = "adp-qa-tfstate"

@@ -1,0 +1,12 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+.env
+.env.terraform.local
+.DS_Store
+environments/*/backend.tf
