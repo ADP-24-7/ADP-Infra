@@ -39,6 +39,18 @@ make version
 make check
 ```
 
+For authenticated NCP operations, create the ignored local credential file and
+fill it only on the operator's machine:
+
+```sh
+make env
+$EDITOR .env.terraform.local
+```
+
+The Makefile automatically passes this file to Docker Compose. The same NCP key
+is mapped inside the container to both `NCLOUD_*` provider variables and the
+`AWS_*` variables required by the S3-compatible remote backend.
+
 Use a locally installed compatible Terraform CLI with:
 
 ```sh
@@ -55,8 +67,10 @@ been applied.
 
 ## Safety rules
 
-- Credentials are accepted only through environment variables.
-- State, plan files, `.tfvars`, `.env`, and credentials are ignored by Git.
+- Credentials are accepted only through process environment variables or the
+  permission-restricted `.env.terraform.local` file.
+- State, plan files, `.tfvars`, `.env`, `.env.terraform.local`, and credentials
+  are ignored by Git.
 - Every adopted resource uses `prevent_destroy`.
 - Runtime ACG rules remain empty/default-deny until a concrete target exists.
 - Outputs contain identifiers and bucket names only, never credentials.

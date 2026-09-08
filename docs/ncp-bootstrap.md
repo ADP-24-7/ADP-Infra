@@ -25,6 +25,30 @@ permissions needed to read/manage this inventory. Keep credentials in the shell
 or an approved secret manager. Never put them in `.tf`, `.tfvars`, state,
 Docker images, command history, logs, or Notion.
 
+For repeatable local Docker commands, use the dedicated credential file rather
+than the generic Compose `.env`. The dedicated name prevents Terraform
+credentials from being mixed with unrelated application settings:
+
+```sh
+make env
+chmod 600 .env.terraform.local
+```
+
+Then edit `.env.terraform.local` locally. Its committed example contains only
+empty values:
+
+```dotenv
+NCLOUD_ACCESS_KEY=
+NCLOUD_SECRET_KEY=
+NCLOUD_REGION=KR
+```
+
+The file is ignored by Git and automatically loaded by the Makefile. Never put
+real values in `.env.terraform.local.example`.
+
+Do not paste the output of `docker compose config` after adding real values: the
+rendered Compose configuration contains the expanded credential environment.
+
 For the import and zero-change plan, assign the system-managed
 `NCP_VPC_SERVER_VIEWER` policy or an equivalent user-defined policy containing
 all of these read actions:
@@ -42,21 +66,13 @@ reached. Object Storage list/detail access is also required. Prefer Viewer
 permissions during adoption; grant change permissions only for a separately
 reviewed Terraform change that truly needs to modify cloud resources.
 
-```sh
-export NCLOUD_ACCESS_KEY="..."
-export NCLOUD_SECRET_KEY="..."
-export NCLOUD_REGION="KR"
-```
+`compose.yaml` maps the NCP values to both the NCP provider variables and the
+AWS-standard variables required by the S3-compatible backend. No duplicate
+`AWS_*` entries are needed in the local file. Shell exports remain supported
+when `.env.terraform.local` is absent.
 
-The S3-compatible backend reads AWS-standard variable names. Export them from
-the same secret values only for the migration command; do not persist them.
-
-```sh
-export AWS_ACCESS_KEY_ID="$NCLOUD_ACCESS_KEY"
-export AWS_SECRET_ACCESS_KEY="$NCLOUD_SECRET_KEY"
-export AWS_REGION="kr-standard"
-export AWS_DEFAULT_REGION="kr-standard"
-```
+Static validation uses a separate Terraform data directory, so `make check`
+does not initialize, migrate, or contact an already activated remote backend.
 
 ## Stage 1: adopt into local state
 
@@ -109,5 +125,7 @@ configuration intentionally contains no credentials.
 Docker is used only as a reproducible Terraform CLI runner, matching the other
 ADP repositories' container-first development workflow. It does not run or
 replace NCP infrastructure. `compose.yaml` pins Terraform 1.16.1 and passes only
-explicit credential environment variables at runtime. Native Terraform remains
-available through `TF="terraform -chdir=environments/qa"`.
+the ignored `.env.terraform.local` values as runtime environment variables.
+Native Terraform remains available through
+`TF="terraform -chdir=environments/qa"`; native runs use shell environment
+variables and do not consume the Compose env file automatically.
