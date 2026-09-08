@@ -46,6 +46,7 @@ check:
 	$(MAKE) validate
 
 import-plan: init-local
+	@rm -f environments/qa/adoption.tfplan
 	$(TF) plan -out=adoption.tfplan
 
 plan:

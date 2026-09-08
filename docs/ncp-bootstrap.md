@@ -25,6 +25,23 @@ permissions needed to read/manage this inventory. Keep credentials in the shell
 or an approved secret manager. Never put them in `.tf`, `.tfvars`, state,
 Docker images, command history, logs, or Notion.
 
+For the import and zero-change plan, assign the system-managed
+`NCP_VPC_SERVER_VIEWER` policy or an equivalent user-defined policy containing
+all of these read actions:
+
+- `View/getVPCList`
+- `View/getVPCDetail`
+- `View/getSubnetList`
+- `View/getSubnetDetail`
+- `View/getACGList`
+- `View/getACGDetail`
+
+The NCP provider reads the VPC's default ACG while refreshing `ncloud_vpc`, so
+`View/getACGList` is required even before the standalone runtime ACG import is
+reached. Object Storage list/detail access is also required. Prefer Viewer
+permissions during adoption; grant change permissions only for a separately
+reviewed Terraform change that truly needs to modify cloud resources.
+
 ```sh
 export NCLOUD_ACCESS_KEY="..."
 export NCLOUD_SECRET_KEY="..."
