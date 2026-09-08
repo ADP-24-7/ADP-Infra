@@ -1,0 +1,19 @@
+services:
+  terraform:
+    image: hashicorp/terraform:1.16.1
+    working_dir: /workspace/environments/qa
+    environment:
+      - NCLOUD_ACCESS_KEY
+      - NCLOUD_SECRET_KEY
+      - NCLOUD_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_REGION
+      - AWS_DEFAULT_REGION
+    volumes:
+      - .:/workspace
+      - terraform-qa-data:/workspace/environments/qa/.terraform
+
+volumes:
+  terraform-qa-data:
+
