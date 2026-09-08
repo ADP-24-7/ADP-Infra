@@ -8,4 +8,4 @@ crash.log
 crash.*.log
 .env
 .DS_Store
-
+environments/*/backend.tf

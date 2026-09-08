@@ -1,0 +1,5 @@
+# Activated by `make init-remote` only after the five console resources have
+# been adopted into local state and the zero-change plan has been reviewed.
+terraform {
+  backend "s3" {}
+}

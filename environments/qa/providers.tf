@@ -8,9 +8,6 @@ terraform {
     }
   }
 
-  # Start with `terraform init -backend=false` while adopting the existing
-  # state bucket, then migrate with backend.hcl.example (see bootstrap docs).
-  backend "s3" {}
 }
 
 provider "ncloud" {
@@ -18,4 +15,3 @@ provider "ncloud" {
   site        = var.site
   support_vpc = true
 }
-

@@ -61,9 +61,10 @@ guard, not a substitute for reviewing every plan.
    `environments/qa/terraform.tfstate` to an encrypted, access-controlled backup
    outside Git.
 2. Export both `NCLOUD_*` and `AWS_*` variables above.
-3. Run `make init-remote`. Answer yes only when Terraform identifies the local
-   state as the source and `adp-qa-tfstate/adp-infra/qa/terraform.tfstate` as the
-   destination.
+3. Run `make init-remote`. This activates the ignored local `backend.tf` from
+   `backend.tf.example`, then starts state migration. Answer yes only when
+   Terraform identifies the local state as the source and
+   `adp-qa-tfstate/adp-infra/qa/terraform.tfstate` as the destination.
 4. Run `make plan`; require zero unintended changes.
 5. Confirm the state object exists and is private. Retain the encrypted local
    backup until a remote-state recovery drill succeeds.
@@ -75,6 +76,8 @@ configuration intentionally contains no credentials.
 ## Recovery
 
 - Never delete either bucket from the console or with `terraform destroy`.
+- Do not create `environments/qa/backend.tf` or run `make init-remote` before
+  local adoption is complete. The Makefile activates it only at migration time.
 - Before a state operation, take an encrypted backup with `terraform state pull`.
 - To restore, initialize the same backend, keep the current remote object as an
   incident copy, and use `terraform state push` only after peer review of the

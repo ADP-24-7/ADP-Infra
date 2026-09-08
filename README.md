@@ -49,6 +49,10 @@ Resource adoption requires QA-scoped credentials and a zero-change plan. Follow
 [`docs/ncp-bootstrap.md`](docs/ncp-bootstrap.md) before any apply or backend
 migration.
 
+The S3 backend is intentionally inactive during the first local-state adoption.
+Only `make init-remote` activates `backend.tf` after the reviewed import plan has
+been applied.
+
 ## Safety rules
 
 - Credentials are accepted only through environment variables.
