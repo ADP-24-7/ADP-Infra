@@ -76,7 +76,7 @@ documented in [`docs/ncp-bootstrap.md`](docs/ncp-bootstrap.md).
 - Every adopted resource uses `prevent_destroy`.
 - Runtime ACG rules remain empty/default-deny until a concrete target exists.
 - Outputs contain identifiers and bucket names only, never credentials.
-- Remote state operations are single-operator until locking support for the NCP
-  S3-compatible endpoint has been verified.
+- Initial remote state migration is single-operator. Normal remote operations
+  use NCP Object Storage conditional-write locking through `use_lockfile`.
 - Pull requests run credential-free formatting and static validation in GitHub
   Actions; authenticated plans remain an explicit operator step.

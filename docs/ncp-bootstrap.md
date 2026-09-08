@@ -100,10 +100,9 @@ guard, not a substitute for reviewing every plan.
 
 ## Stage 2: migrate state to Object Storage
 
-Only one designated operator may run state migration or state-changing
-Terraform commands at a time. Object Storage backend locking has not been
-verified for this S3-compatible endpoint, so concurrent runs can overwrite
-state.
+Only one designated operator may run the initial state migration. After the
+migration, the backend uses NCP Object Storage conditional writes through
+`use_lockfile = true`; do not bypass a lock or run state recovery concurrently.
 
 1. Run `make state-verify`. It must match the committed list of exactly five
    addresses in `environments/qa/expected-state.txt`.
@@ -121,8 +120,9 @@ state.
    backup until a remote-state recovery drill succeeds.
 
 NCP Object Storage is S3-compatible at
-`https://kr.object.ncloudstorage.com` with region `kr-standard`. The backend
-configuration intentionally contains no credentials.
+`https://kr.object.ncloudstorage.com`. The S3 backend signing region is `KR`, as
+specified by the NCP Terraform backend guide. The backend configuration
+intentionally contains no credentials.
 
 ## Recovery
 

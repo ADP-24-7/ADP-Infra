@@ -8,8 +8,8 @@ services:
       NCLOUD_REGION: ${NCLOUD_REGION:-KR}
       AWS_ACCESS_KEY_ID: ${NCLOUD_ACCESS_KEY:-}
       AWS_SECRET_ACCESS_KEY: ${NCLOUD_SECRET_KEY:-}
-      AWS_REGION: kr-standard
-      AWS_DEFAULT_REGION: kr-standard
+      AWS_REGION: KR
+      AWS_DEFAULT_REGION: KR
       TF_DATA_DIR: ${TF_DATA_DIR:-/workspace/environments/qa/.terraform}
     volumes:
       - .:/workspace
