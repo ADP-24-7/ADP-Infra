@@ -63,7 +63,9 @@ migration.
 
 The S3 backend is intentionally inactive during the first local-state adoption.
 Only `make init-remote` activates `backend.tf` after the reviewed import plan has
-been applied.
+been applied. Use `make state-verify` before migration and
+`make verify-remote` afterward. Recovery from an interrupted migration is
+documented in [`docs/ncp-bootstrap.md`](docs/ncp-bootstrap.md).
 
 ## Safety rules
 
@@ -74,3 +76,7 @@ been applied.
 - Every adopted resource uses `prevent_destroy`.
 - Runtime ACG rules remain empty/default-deny until a concrete target exists.
 - Outputs contain identifiers and bucket names only, never credentials.
+- Remote state operations are single-operator until locking support for the NCP
+  S3-compatible endpoint has been verified.
+- Pull requests run credential-free formatting and static validation in GitHub
+  Actions; authenticated plans remain an explicit operator step.

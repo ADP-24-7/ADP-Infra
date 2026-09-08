@@ -1,0 +1,5 @@
+module.network.ncloud_access_control_group.runtime
+module.network.ncloud_subnet.private_runtime
+module.network.ncloud_vpc.this
+module.object_storage.ncloud_objectstorage_bucket.this["adp-qa-data-artifacts"]
+module.object_storage.ncloud_objectstorage_bucket.this["adp-qa-tfstate"]

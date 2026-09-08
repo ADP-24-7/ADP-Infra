@@ -66,6 +66,16 @@ reached. Object Storage list/detail access is also required. Prefer Viewer
 permissions during adoption; grant change permissions only for a separately
 reviewed Terraform change that truly needs to modify cloud resources.
 
+Remote state migration additionally requires object write permission on the
+`adp-qa-tfstate` bucket. Assign a bucket-scoped user-defined policy containing
+`Change/writeObject` and retain its automatically related
+`View/getBucketList` and `View/getObjectList` actions. Alternatively,
+`NCP_OBJECT_STORAGE_MANAGER` can be assigned for a short, controlled migration
+window, but the bucket-scoped policy is preferred. A successful bucket listing
+or backend initialization proves read access only; it does not prove that
+Terraform can upload state. NCP notes that policy changes can take up to one
+minute to become effective.
+
 `compose.yaml` maps the NCP values to both the NCP provider variables and the
 AWS-standard variables required by the S3-compatible backend. No duplicate
 `AWS_*` entries are needed in the local file. Shell exports remain supported
@@ -90,15 +100,23 @@ guard, not a substitute for reviewing every plan.
 
 ## Stage 2: migrate state to Object Storage
 
-1. Confirm the local state has all five resources and copy
-   `environments/qa/terraform.tfstate` to an encrypted, access-controlled backup
-   outside Git.
-2. Export both `NCLOUD_*` and `AWS_*` variables above.
-3. Run `make init-remote`. This activates the ignored local `backend.tf` from
-   `backend.tf.example`, then starts state migration. Answer yes only when
+Only one designated operator may run state migration or state-changing
+Terraform commands at a time. Object Storage backend locking has not been
+verified for this S3-compatible endpoint, so concurrent runs can overwrite
+state.
+
+1. Run `make state-verify`. It must match the committed list of exactly five
+   addresses in `environments/qa/expected-state.txt`.
+2. Copy `environments/qa/terraform.tfstate` to an encrypted,
+   access-controlled backup outside Git and record its SHA-256 digest.
+3. Run `make init-remote`. This refuses to proceed if the local state is empty,
+   the five-address check fails, or `backend.tf` is already active. It preserves
+   `terraform.tfstate.pre-remote`, activates the ignored `backend.tf`, and then
+   starts state migration. Answer yes only when
    Terraform identifies the local state as the source and
    `adp-qa-tfstate/adp-infra/qa/terraform.tfstate` as the destination.
-4. Run `make plan`; require zero unintended changes.
+4. Run `make verify-remote`. It requires the same five addresses and a
+   zero-change plan (`terraform plan -detailed-exitcode` exit code 0).
 5. Confirm the state object exists and is private. Retain the encrypted local
    backup until a remote-state recovery drill succeeds.
 
@@ -110,13 +128,28 @@ configuration intentionally contains no credentials.
 
 - Never delete either bucket from the console or with `terraform destroy`.
 - Do not create `environments/qa/backend.tf` or run `make init-remote` before
-  local adoption is complete. The Makefile activates it only at migration time.
+  local adoption is complete. The Makefile activates it only at migration time
+  and rejects an empty local state or an already-active backend.
+- If migration was interrupted after `backend.tf` was created and the local
+  state became empty, first verify that the remote backend has no usable state.
+  Then record the SHA-256 digest and five addresses of
+  `terraform.tfstate.backup`, and run `make recover-local-state`. This command
+  preserves another local copy, disables the generated backend, restores the
+  backup, clears only the cached backend metadata from the Docker Terraform data
+  volume, reinitializes the local backend, and requires the exact five-address
+  inventory. The provider and module cache remain intact. Run a local
+  zero-change plan before attempting migration again.
+- If `make init-remote` fails, it removes the generated backend configuration,
+  restores `terraform.tfstate.pre-remote`, and reinitializes the local backend.
 - Before a state operation, take an encrypted backup with `terraform state pull`.
 - To restore, initialize the same backend, keep the current remote object as an
   incident copy, and use `terraform state push` only after peer review of the
   exact backup and a matching `terraform plan`.
 - If the backend is unavailable, use the encrypted local backup with
-  `terraform init -backend=false`; do not create replacement cloud resources.
+  `terraform init -reconfigure` while `backend.tf` is absent; do not create
+  replacement cloud resources.
+- Do not put `terraform state push` in the Makefile or CI. It is an incident-only
+  command requiring peer review of the source backup, destination, and plan.
 - ACG rules remain absent until a concrete runtime/DB connection exists. Add all
   rules in one `ncloud_access_control_group_rule` resource to avoid overwrites.
 
