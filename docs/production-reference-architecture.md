@@ -3,7 +3,7 @@
 ## 범위
 
 이 문서는 ADP Gateway를 NCP 또는 On-premise에 도입할 때 필요한 목표 배치를 정의한다. 현재 Terraform이 관리하는 것은
-NCP QA VPC, private subnet, empty runtime ACG, private Object Storage bucket 두 개뿐이다. Runtime Server, Cloud DB, NAT/Egress,
+NCP QA VPC, private subnet, empty runtime ACG, public access를 의도하지 않는 Object Storage bucket 두 개뿐이다. Runtime Server, Cloud DB, NAT/Egress,
 Load Balancer, Container Registry, KMS, Monitoring, Backup Restore는 생성하거나 검증하지 않았다.
 
 ## 목표 Topology
@@ -15,7 +15,8 @@ Private Admin / Workload Network
        -> mTLS Service Identity
   -> ADP Gateway Runtime (2+ instances, private subnet)
        -> HA PostgreSQL (private DB subnet)
-       -> Private Object Storage
+       -> Access-controlled Object Storage bucket
+          -> Private-network access                         [DESIGN_ONLY]
        -> Egress Proxy / NAT + destination allowlist
             -> NVIDIA / Digital Asset Provider
        -> Private Prometheus / Alertmanager -> Institution SIEM
@@ -33,7 +34,7 @@ IdP, DB, HSM/KMS, egress firewall, SIEM으로 매핑한다.
 | Runtime ACG | 존재, rule 없음 | ingress source와 egress destination 최소 허용 |
 | Runtime | 없음 | immutable image digest, 2개 이상 instance, readiness rollout |
 | Database | Console bootstrap 경험만 존재 | private HA PostgreSQL, encryption, backup, failover |
-| Object Storage | private artifact/state bucket | versioning, retention, scoped runtime identity |
+| Object Storage | 비공개 artifact/state bucket과 scoped credential | versioning, retention, private-network access |
 | Secret | 로컬 ignored env | Secret Manager/KMS reference, rotation, audit |
 | Egress | 없음 | proxy/NAT/firewall allowlist와 DNS/IP 통제 |
 | Monitoring | 없음 | private scrape, Alertmanager, log/SIEM export |
