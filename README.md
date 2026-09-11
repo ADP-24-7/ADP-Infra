@@ -16,6 +16,10 @@ cost-minimized NCP QA foundation adopted from console bootstrap resources.
 Cloud DB, NAT Gateway, Server, Container Registry, KMS, runtime deployment, and
 monitoring stay out of scope until their documented gates are met.
 
+The target deployment topology and the boundary between verified QA resources
+and design-only production controls are defined in
+[`docs/production-reference-architecture.md`](docs/production-reference-architecture.md).
+
 The QA remote state is active at
 `adp-qa-tfstate/adp-infra/qa/terraform.tfstate`. It tracks exactly five
 resources and the post-migration plan is `No changes` with exit code `0`.
@@ -28,7 +32,9 @@ ADP-Infra/
 │   ├── network/
 │   └── object-storage/
 ├── environments/qa/
-├── docs/ncp-bootstrap.md
+├── docs/
+│   ├── ncp-bootstrap.md
+│   └── production-reference-architecture.md
 ├── compose.yaml
 └── Makefile
 ```

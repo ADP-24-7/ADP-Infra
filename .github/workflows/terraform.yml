@@ -8,6 +8,8 @@ on:
       - "**/*.hcl.example"
       - "compose.yaml"
       - "Makefile"
+      - "README.md"
+      - "docs/**"
       - ".github/workflows/terraform.yml"
   push:
     branches:
@@ -18,6 +20,8 @@ on:
       - "**/*.hcl.example"
       - "compose.yaml"
       - "Makefile"
+      - "README.md"
+      - "docs/**"
       - ".github/workflows/terraform.yml"
 
 permissions:
